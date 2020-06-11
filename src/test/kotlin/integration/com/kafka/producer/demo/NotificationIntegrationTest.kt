@@ -6,6 +6,8 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.UUIDDeserializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
@@ -45,8 +47,7 @@ internal class NotificationIntegrationTest : IntegrationTest() {
     }
                     
     @Test
-    @Timeout(3)
-    fun `test creating a new notification`() {
+    fun `test creating a new notification when notification is valid`() {
         // given
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
@@ -61,5 +62,20 @@ internal class NotificationIntegrationTest : IntegrationTest() {
             """{"from":"from","to":"to"}""",
             KafkaTestUtils.getSingleRecord(consumer, "notification-event").value()
         )
+    }
+
+    @Test
+    fun `test creating a new notification when notification is not valid`() {
+        // given
+        val headers = HttpHeaders()
+        headers.accept = listOf(MediaType.APPLICATION_JSON)
+        val request = HttpEntity(Notification("", ""), headers)
+
+        // when
+        val actual = restTemplate.exchange("/api/notifications", HttpMethod.POST, request, Void::class.java)
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, actual.statusCode)
+        assertTrue(KafkaTestUtils.getRecords(consumer, 3).isEmpty)
     }
 }

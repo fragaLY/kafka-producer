@@ -49,8 +49,6 @@ class ControllerUnitTest {
         val notification = Notification("", "to")
         val payload = mapper.writeValueAsString(notification)
 
-        doNothing().`when`(service).create(notification)
-
         // when
         mvc.perform(post("/api/notifications").content(payload).contentType(MediaType.APPLICATION_JSON))
             //then
@@ -62,8 +60,6 @@ class ControllerUnitTest {
         // given
         val notification = Notification("", "to")
         val payload = mapper.writeValueAsString(notification)
-
-        doNothing().`when`(service).create(notification)
 
         // when
         mvc.perform(post("/api/notifications").content(payload).contentType(MediaType.APPLICATION_JSON))
@@ -77,7 +73,27 @@ class ControllerUnitTest {
         val notification = Notification("", "")
         val payload = mapper.writeValueAsString(notification)
 
-        doNothing().`when`(service).create(notification)
+        // when
+        mvc.perform(post("/api/notifications").content(payload).contentType(MediaType.APPLICATION_JSON))
+            //then
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `create notification event test when payload is empty`() {
+        // given
+        val payload = "";
+
+        // when
+        mvc.perform(post("/api/notifications").content(payload).contentType(MediaType.APPLICATION_JSON))
+            //then
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `create notification event test when payload is not valid`() {
+        // given
+        val payload = "payload";
 
         // when
         mvc.perform(post("/api/notifications").content(payload).contentType(MediaType.APPLICATION_JSON))
