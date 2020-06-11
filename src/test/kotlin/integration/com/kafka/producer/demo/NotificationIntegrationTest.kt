@@ -6,9 +6,9 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.UUIDDeserializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Timeout
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity
@@ -43,10 +43,10 @@ internal class NotificationIntegrationTest : IntegrationTest() {
     internal fun tearDown() {
         consumer.close()
     }
-
+                    
     @Test
+    @Timeout(3)
     fun `test creating a new notification`() {
-
         // given
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
@@ -57,8 +57,9 @@ internal class NotificationIntegrationTest : IntegrationTest() {
 
         // then
         assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
-        val message = KafkaTestUtils.getSingleRecord(consumer, "notification-event")
-        assertNotNull(message)
-        assertNotNull("""{"from":"from","to":"to"}""", message.value())
+        assertEquals(
+            """{"from":"from","to":"to"}""",
+            KafkaTestUtils.getSingleRecord(consumer, "notification-event").value()
+        )
     }
 }
