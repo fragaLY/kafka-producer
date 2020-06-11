@@ -32,7 +32,7 @@ class ControllerUnitTest {
     @Test
     fun `create notification event test when payload is valid`() {
         // given
-        val notification = Notification("from", "to")
+        val notification = Notification(null, "from", "to")
         val payload = mapper.writeValueAsString(notification)
 
         doNothing().`when`(service).create(notification)
@@ -46,7 +46,7 @@ class ControllerUnitTest {
     @Test
     fun `create notification event test when payload has no first argument`() {
         // given
-        val notification = Notification("", "to")
+        val notification = Notification(null, "", "to")
         val payload = mapper.writeValueAsString(notification)
 
         // when
@@ -58,7 +58,7 @@ class ControllerUnitTest {
     @Test
     fun `create notification event test when payload has no second argument`() {
         // given
-        val notification = Notification("", "to")
+        val notification = Notification(null, "", "to")
         val payload = mapper.writeValueAsString(notification)
 
         // when
@@ -70,7 +70,7 @@ class ControllerUnitTest {
     @Test
     fun `create notification event test when payload has no two arguments`() {
         // given
-        val notification = Notification("", "")
+        val notification = Notification(null, "", "")
         val payload = mapper.writeValueAsString(notification)
 
         // when

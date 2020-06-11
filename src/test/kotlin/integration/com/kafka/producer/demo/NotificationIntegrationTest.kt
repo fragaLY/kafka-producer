@@ -51,7 +51,7 @@ internal class NotificationIntegrationTest : IntegrationTest() {
         // given
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
-        val request = HttpEntity(Notification("from", "to"), headers)
+        val request = HttpEntity(Notification(null, "from", "to"), headers)
 
         // when
         val actual = restTemplate.exchange("/api/notifications", HttpMethod.POST, request, Void::class.java)
@@ -59,7 +59,7 @@ internal class NotificationIntegrationTest : IntegrationTest() {
         // then
         assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
         assertEquals(
-            """{"from":"from","to":"to"}""",
+            """{"id":null,"from":"from","to":"to"}""",
             KafkaTestUtils.getSingleRecord(consumer, "notification-event").value()
         )
     }
@@ -69,7 +69,7 @@ internal class NotificationIntegrationTest : IntegrationTest() {
         // given
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
-        val request = HttpEntity(Notification("", ""), headers)
+        val request = HttpEntity(Notification(null, "", ""), headers)
 
         // when
         val actual = restTemplate.exchange("/api/notifications", HttpMethod.POST, request, Void::class.java)

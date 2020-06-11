@@ -25,6 +25,7 @@ import javax.validation.constraints.NotNull
 enum class EventType { NOTIFICATION_CREATED }
 
 data class Notification(
+    val id: Long?,
     @field:NotBlank(message = "The sender should not be blank") val from: String,
     @field:NotBlank(message = "The receiver should not be blank") val to: String
 )
@@ -68,7 +69,7 @@ class EventProducer(private val template: KafkaTemplate<UUID, String>, private v
                 logger.error("[NOTIFICATION EVENT] Error producing event [$exception]")
 
             override fun onSuccess(@Nullable result: SendResult<UUID, String>?) =
-                logger.info("[NOTIFICATION EVENT] The event successfully produced a message in topic [${result?.recordMetadata?.topic()}] in partition [${result?.recordMetadata?.partition()}] with offset [${result?.recordMetadata?.offset()}]")
+                logger.info("[NOTIFICATION EVENT] The event with key [${result?.producerRecord?.key()}] successfully produced a message in topic [${result?.recordMetadata?.topic()}] in partition [${result?.recordMetadata?.partition()}] with offset [${result?.recordMetadata?.offset()}]")
         })
     }
 }

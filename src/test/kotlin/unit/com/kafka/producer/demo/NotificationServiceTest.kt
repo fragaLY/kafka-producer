@@ -30,7 +30,7 @@ class NotificationServiceTest {
     @Test
     fun `test create notification event`() {
         // given
-        val notification = Notification("from", "to")
+        val notification = Notification(null,"from", "to")
         val uuidValue = UUID.randomUUID()
         val event = NotificationEvent(uuidValue, notification, EventType.NOTIFICATION_CREATED)
         Mockito.`when`(uuid.random()).thenReturn(uuidValue)

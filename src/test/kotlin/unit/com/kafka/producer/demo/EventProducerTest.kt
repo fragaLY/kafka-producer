@@ -36,7 +36,7 @@ class EventProducerTest {
     fun `test event producer on failure`() {
         // given
         val uuid = UUID.randomUUID()
-        val notification = Notification("from", "to")
+        val notification = Notification(null, "from", "to")
         val json = mapper.writeValueAsString(notification)
         val event = NotificationEvent(uuid, notification, EventType.NOTIFICATION_CREATED)
         val future = SettableListenableFuture<SendResult<UUID, String>>()
@@ -55,7 +55,7 @@ class EventProducerTest {
     fun `test event producer on success`() {
         // given
         val uuid = UUID.randomUUID()
-        val notification = Notification("from", "to")
+        val notification = Notification(null, "from", "to")
         val json = mapper.writeValueAsString(notification)
         val event = NotificationEvent(uuid, notification, EventType.NOTIFICATION_CREATED)
 
