@@ -2,6 +2,7 @@ package com.kafka.producer.demo.notification
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.kafka.core.KafkaTemplate
@@ -10,9 +11,11 @@ import org.springframework.lang.Nullable
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.util.concurrent.ListenableFutureCallback
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 import javax.validation.Valid
@@ -38,6 +41,7 @@ class NotificationService(private val uuid: UUIDProvider, private val producer: 
 @RequestMapping("/api/notifications")
 interface Api {
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun create(@NotNull(message = "The notification cannot be null") @Valid @RequestBody notification: Notification): ResponseEntity<Unit>
 }
 
