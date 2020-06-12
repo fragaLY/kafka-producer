@@ -2,15 +2,13 @@ package com.kafka.producer.demo
 
 import com.kafka.producer.demo.notification.Notification
 import org.apache.kafka.clients.consumer.Consumer
+import org.apache.kafka.common.serialization.LongDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.kafka.common.serialization.UUIDDeserializer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Timeout
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpEntity
@@ -21,7 +19,6 @@ import org.springframework.http.MediaType
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.utils.KafkaTestUtils
-import java.util.UUID
 
 /** @author Vadzim_Kavalkou */
 internal class NotificationIntegrationTest : IntegrationTest() {
@@ -32,12 +29,12 @@ internal class NotificationIntegrationTest : IntegrationTest() {
     @Autowired
     lateinit var broker: EmbeddedKafkaBroker
 
-    lateinit var consumer: Consumer<UUID, String>
+    lateinit var consumer: Consumer<Long, String>
 
     @BeforeEach
     internal fun setUp() {
         val properties = HashMap(KafkaTestUtils.consumerProps("group1", "true", broker))
-        consumer = DefaultKafkaConsumerFactory(properties, UUIDDeserializer(), StringDeserializer()).createConsumer()
+        consumer = DefaultKafkaConsumerFactory(properties, LongDeserializer(), StringDeserializer()).createConsumer()
         broker.consumeFromAllEmbeddedTopics(consumer)
     }
 
