@@ -16,7 +16,7 @@ spring:
   kafka:
     producer:
       bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
-      key-serializer: org.apache.kafka.common.serialization.LongSerializer
+      key-serializer: org.apache.kafka.common.serialization.UUIDSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     admin:
       properties:
@@ -48,7 +48,7 @@ server:
 # log specific properties
 logging:
   level:
-    root: debug
+    root: info
     org:
       springframework:
-        boot: debug
+        boot: info
