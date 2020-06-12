@@ -2,7 +2,9 @@ package com.kafka.producer.demo
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.kafka.producer.demo.notification.Controller
+import com.kafka.producer.demo.notification.EventType
 import com.kafka.producer.demo.notification.Notification
+import com.kafka.producer.demo.notification.NotificationEvent
 import com.kafka.producer.demo.notification.NotificationService
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.doNothing
@@ -33,9 +35,10 @@ class ControllerUnitTest {
     fun `create notification event test when payload is valid`() {
         // given
         val notification = Notification(null, "from", "to")
+        val event = NotificationEvent(1, notification, EventType.CREATE_NOTIFICATION)
         val payload = mapper.writeValueAsString(notification)
 
-        doNothing().`when`(service).create(notification)
+        doNothing().`when`(service).create(event)
 
         // when
         mvc.perform(post("/api/notifications").content(payload).contentType(MediaType.APPLICATION_JSON))
