@@ -1,6 +1,7 @@
 package com.kafka.producer.demo
 
 import com.kafka.producer.demo.notification.Notification
+import com.kafka.producer.demo.notification.NotificationEvent
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.common.serialization.LongDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -23,10 +24,10 @@ import org.springframework.kafka.test.utils.KafkaTestUtils
 /** @author Vadzim_Kavalkou */
 internal class NotificationIntegrationTest : IntegrationTest() {
 
-    @Autowired
+    @field:Autowired
     lateinit var restTemplate: TestRestTemplate
 
-    @Autowired
+    @field:Autowired
     lateinit var broker: EmbeddedKafkaBroker
 
     lateinit var consumer: Consumer<Long, String>
@@ -42,13 +43,14 @@ internal class NotificationIntegrationTest : IntegrationTest() {
     internal fun tearDown() {
         consumer.close()
     }
-                    
+
     @Test
     fun `test creating a new notification when notification is valid`() {
         // given
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
-        val request = HttpEntity(Notification(null, "from", "to"), headers)
+        val request = HttpEntity(NotificationEvent(1L, Notification(2L, "from", "to"), null), headers)
+        val expected = """{"id":2,"from":"from","to":"to"}"""
 
         // when
         val actual = restTemplate.exchange("/api/notifications", HttpMethod.POST, request, Void::class.java)
@@ -56,8 +58,7 @@ internal class NotificationIntegrationTest : IntegrationTest() {
         // then
         assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
         assertEquals(
-            """{"id":null,"from":"from","to":"to"}""",
-            KafkaTestUtils.getSingleRecord(consumer, "notification-event").value()
+            expected, KafkaTestUtils.getSingleRecord(consumer, "notification-event").value()
         )
     }
 
@@ -66,10 +67,43 @@ internal class NotificationIntegrationTest : IntegrationTest() {
         // given
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
-        val request = HttpEntity(Notification(null, "", ""), headers)
+        val request = HttpEntity(NotificationEvent(1L, Notification(null, "", ""), null), headers)
 
         // when
         val actual = restTemplate.exchange("/api/notifications", HttpMethod.POST, request, Void::class.java)
+
+        // then
+        assertEquals(HttpStatus.BAD_REQUEST, actual.statusCode)
+        assertTrue(KafkaTestUtils.getRecords(consumer, 3).isEmpty)
+    }
+
+    @Test
+    fun `test updating notification when notification is valid`() {
+        // given
+        val headers = HttpHeaders()
+        headers.accept = listOf(MediaType.APPLICATION_JSON)
+        val request = HttpEntity(NotificationEvent(1L, Notification(2L, "from", "to"), null), headers)
+        val expected = """{"id":1,"from":"from","to":"to"}"""
+
+        // when
+        val actual = restTemplate.exchange("/api/notifications/1", HttpMethod.PUT, request, Void::class.java)
+
+        // then
+        assertEquals(HttpStatus.NO_CONTENT, actual.statusCode)
+        assertEquals(
+            expected, KafkaTestUtils.getSingleRecord(consumer, "notification-event").value()
+        )
+    }
+
+    @Test
+    fun `test updating notification when notification is not valid`() {
+        // given
+        val headers = HttpHeaders()
+        headers.accept = listOf(MediaType.APPLICATION_JSON)
+        val request = HttpEntity(NotificationEvent(1L, Notification(null, "", ""), null), headers)
+
+        // when
+        val actual = restTemplate.exchange("/api/notifications/asb", HttpMethod.PUT, request, Void::class.java)
 
         // then
         assertEquals(HttpStatus.BAD_REQUEST, actual.statusCode)

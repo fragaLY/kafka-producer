@@ -11,6 +11,7 @@ import org.springframework.lang.Nullable
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import org.springframework.util.concurrent.ListenableFutureCallback
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -42,9 +43,12 @@ interface Api {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun create(@NotNull(message = "The event cannot be null") @Valid @RequestBody event: NotificationEvent): ResponseEntity<Unit>
 
-    @PutMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
+    @PutMapping(value = ["/{id}"], consumes = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun update(@NotNull(message = "The event cannot be null") @Valid @RequestBody event: NotificationEvent): ResponseEntity<Unit>
+    fun update(
+        @NotNull(message = "The notification id cannot be null") @PathVariable id: Long,
+        @NotNull(message = "The event cannot be null") @Valid @RequestBody event: NotificationEvent
+    ): ResponseEntity<Unit>
 }
 
 @RestController
@@ -52,14 +56,20 @@ class Controller(private val service: NotificationService) : Api {
     override fun create(event: NotificationEvent) =
         service.create(event).run { ResponseEntity.noContent().build<Unit>() }
 
-    override fun update(event: NotificationEvent) =
-        service.update(event).run { ResponseEntity.noContent().build<Unit>() }
+    override fun update(id: Long, event: NotificationEvent) =
+        service.update(id, event).run { ResponseEntity.noContent().build<Unit>() }
 }
 
 @Service
 class NotificationService(private val producer: EventProducer) {
     fun create(event: NotificationEvent) = producer.produce(event.copy(type = EventType.CREATE_NOTIFICATION))
-    fun update(event: NotificationEvent) = producer.produce(event.copy(type = EventType.UPDATE_NOTIFICATION))
+    fun update(id: Long, event: NotificationEvent) =
+        producer.produce(
+            event.copy(
+                type = EventType.UPDATE_NOTIFICATION,
+                notification = event.notification.copy(id = id)
+            )
+        )
 }
 
 @Component
