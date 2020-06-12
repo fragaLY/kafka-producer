@@ -15,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 /** @author Vadzim_Kavalkou */
@@ -35,8 +36,8 @@ class ControllerUnitTest {
     fun `create notification event test when payload is valid`() {
         // given
         val notification = Notification(null, "from", "to")
-        val event = NotificationEvent(1, notification, EventType.CREATE_NOTIFICATION)
-        val payload = mapper.writeValueAsString(notification)
+        val event = NotificationEvent(1L, notification, EventType.CREATE_NOTIFICATION)
+        val payload = mapper.writeValueAsString(event)
 
         doNothing().`when`(service).create(event)
 
@@ -47,7 +48,7 @@ class ControllerUnitTest {
     }
 
     @Test
-    fun `create notification event test when payload has no first argument`() {
+    fun `create notification event test when payload has no the first argument`() {
         // given
         val notification = Notification(null, "", "to")
         val payload = mapper.writeValueAsString(notification)
@@ -59,9 +60,9 @@ class ControllerUnitTest {
     }
 
     @Test
-    fun `create notification event test when payload has no second argument`() {
+    fun `create notification event test when payload has no the second argument`() {
         // given
-        val notification = Notification(null, "", "to")
+        val notification = Notification(null, "from", "")
         val payload = mapper.writeValueAsString(notification)
 
         // when
@@ -100,6 +101,79 @@ class ControllerUnitTest {
 
         // when
         mvc.perform(post("/api/notifications").content(payload).contentType(MediaType.APPLICATION_JSON))
+            //then
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `update notification event test when payload is valid`() {
+        // given
+        val notification = Notification(null, "from", "to")
+        val event = NotificationEvent(2L, notification, null)
+        val payload = mapper.writeValueAsString(event)
+
+        doNothing().`when`(service).create(event)
+
+        // when
+        mvc.perform(put("/api/notifications/1").content(payload).contentType(MediaType.APPLICATION_JSON))
+            //then
+            .andExpect(status().isNoContent)
+    }
+
+    @Test
+    fun `update notification event test when payload has no the first argument`() {
+        // given
+        val notification = Notification(null, "", "to")
+        val payload = mapper.writeValueAsString(notification)
+
+        // when
+        mvc.perform(put("/api/notifications/1").content(payload).contentType(MediaType.APPLICATION_JSON))
+            //then
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `update notification event test when payload has no the second argument`() {
+        // given
+        val notification = Notification(null, "from", "")
+        val payload = mapper.writeValueAsString(notification)
+
+        // when
+        mvc.perform(put("/api/notifications/1").content(payload).contentType(MediaType.APPLICATION_JSON))
+            //then
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `update notification event test when payload has no two arguments`() {
+        // given
+        val notification = Notification(null, "", "")
+        val payload = mapper.writeValueAsString(notification)
+
+        // when
+        mvc.perform(put("/api/notifications/1").content(payload).contentType(MediaType.APPLICATION_JSON))
+            //then
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `update notification event test when payload is empty`() {
+        // given
+        val payload = "";
+
+        // when
+        mvc.perform(put("/api/notifications/1").content(payload).contentType(MediaType.APPLICATION_JSON))
+            //then
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `update notification event test when payload is not valid`() {
+        // given
+        val payload = "payload";
+
+        // when
+        mvc.perform(put("/api/notifications/1").content(payload).contentType(MediaType.APPLICATION_JSON))
             //then
             .andExpect(status().isBadRequest)
     }
