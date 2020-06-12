@@ -62,14 +62,14 @@ class Controller(private val service: NotificationService) : Api {
 
 @Service
 class NotificationService(private val producer: EventProducer) {
-    fun create(event: NotificationEvent) = producer.produce(event.copy(type = EventType.CREATE_NOTIFICATION))
-    fun update(id: Long, event: NotificationEvent) =
-        producer.produce(
-            event.copy(
-                type = EventType.UPDATE_NOTIFICATION,
-                notification = event.notification.copy(id = id)
-            )
-        )
+
+    fun create(event: NotificationEvent) = producer.produce(
+        event.copy(type = EventType.CREATE_NOTIFICATION, notification = event.notification.copy(id = null))
+    )
+
+    fun update(id: Long, event: NotificationEvent) = producer.produce(
+        event.copy(type = EventType.UPDATE_NOTIFICATION, notification = event.notification.copy(id = id))
+    )
 }
 
 @Component

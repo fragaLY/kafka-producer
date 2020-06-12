@@ -50,7 +50,7 @@ internal class NotificationIntegrationTest : IntegrationTest() {
         val headers = HttpHeaders()
         headers.accept = listOf(MediaType.APPLICATION_JSON)
         val request = HttpEntity(NotificationEvent(1L, Notification(2L, "from", "to"), null), headers)
-        val expected = """{"id":2,"from":"from","to":"to"}"""
+        val expected = """{"id":null,"from":"from","to":"to"}"""
 
         // when
         val actual = restTemplate.exchange("/api/notifications", HttpMethod.POST, request, Void::class.java)
