@@ -18,6 +18,8 @@ spring:
       bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
       key-serializer: org.apache.kafka.common.serialization.LongSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all # default value 1, To turn off set 0.
+      retries: 10 # positive integer is possible. Max 2147483647.
     admin:
       properties:
         bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
@@ -52,3 +54,4 @@ logging:
     org:
       springframework:
         boot: info
+        kafka: info
