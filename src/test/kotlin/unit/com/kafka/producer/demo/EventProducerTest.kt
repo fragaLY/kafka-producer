@@ -39,7 +39,7 @@ class EventProducerTest {
         val event = NotificationEvent(1, notification, EventType.CREATE_NOTIFICATION)
         val future = SettableListenableFuture<SendResult<Long, String>>()
         future.setException(RuntimeException("Exception calling Kafka"))
-        Mockito.`when`(mapper.writeValueAsString(notification)).thenReturn(json)
+        Mockito.`when`(mapper.writeValueAsString(event)).thenReturn(json)
         Mockito.`when`(template.sendDefault(1, json)).thenReturn(future)
 
         // when
@@ -53,17 +53,17 @@ class EventProducerTest {
     fun `test event producer on success`() {
         // given
         val notification = Notification(null, "from", "to")
-        val json = mapper.writeValueAsString(notification)
         val event = NotificationEvent(1, notification, EventType.CREATE_NOTIFICATION)
+        val json = mapper.writeValueAsString(event)
 
-        val record = ProducerRecord("notification-event", event.id, json)
+        val record = ProducerRecord("notification-event", event.key, json)
         val partition = TopicPartition("notification-event", 1)
         val meta = RecordMetadata(partition, 1, 1, 342, System.currentTimeMillis(), 1, 2)
         val result = SendResult(record, meta)
         val future = SettableListenableFuture<SendResult<Long, String>>()
         future.set(result)
 
-        Mockito.`when`(mapper.writeValueAsString(notification)).thenReturn(json)
+        Mockito.`when`(mapper.writeValueAsString(event)).thenReturn(json)
         Mockito.`when`(template.sendDefault(1, json)).thenReturn(future)
 
         // when

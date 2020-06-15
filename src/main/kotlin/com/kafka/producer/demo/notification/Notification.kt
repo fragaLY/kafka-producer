@@ -26,12 +26,12 @@ enum class EventType { CREATE_NOTIFICATION, UPDATE_NOTIFICATION }
 
 data class Notification(
     val id: Long?,
-    @field:NotBlank(message = "The sender should not be blank") val from: String,
-    @field:NotBlank(message = "The receiver should not be blank") val to: String
+    @field:NotBlank(message = "The sender should not be blank") val sender: String,
+    @field:NotBlank(message = "The receiver should not be blank") val receiver: String
 )
 
 data class NotificationEvent(
-    @field:NotNull(message = "The event id should not be null") val id: Long,
+    @field:NotNull(message = "The event id should not be null") val key: Long,
     @field:Valid val notification: Notification,
     val type: EventType?
 )
@@ -78,7 +78,7 @@ class EventProducer(private val template: KafkaTemplate<Long, String>, private v
     private val logger = LoggerFactory.getLogger(javaClass)
 
     fun produce(event: NotificationEvent) {
-        val result = template.sendDefault(event.id, mapper.writeValueAsString(event.notification))
+        val result = template.sendDefault(event.key, mapper.writeValueAsString(event))
         result.addCallback(object : ListenableFutureCallback<SendResult<Long, String>> {
             override fun onFailure(exception: Throwable) =
                 logger.error("[NOTIFICATION EVENT] Error producing event [$exception]")
